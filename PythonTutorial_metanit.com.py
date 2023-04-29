@@ -201,4 +201,4 @@ first_func()
 def say_hello(name, age=18):  #ПАРАМЕТР ПО УМОЛЧАНИЮ, если age == null
     print(f"Hello, {name}")   #НЕОБЯЗАТЕЛЬНЫЕ ПАРАМЕТРЫ ИДУТ ВСЕГДА ПОСЛЕ ОБЯЗАТЕЛЬНЫХ
 say_hello("Bob")
-
+say_hello("Tom", 19)
