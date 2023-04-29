@@ -198,7 +198,19 @@ def first_func():
 
 first_func()
 
-def say_hello(name, age=18):  #ПАРАМЕТР ПО УМОЛЧАНИЮ, если age == null
-    print(f"Hello, {name}")   #НЕОБЯЗАТЕЛЬНЫЕ ПАРАМЕТРЫ ИДУТ ВСЕГДА ПОСЛЕ ОБЯЗАТЕЛЬНЫХ
-say_hello("Bob")
+def say_hello(name, age = 18):  #параметр по умолчанию, если age == null
+    print(f"Hello, {name}")   #необязательные параметры идут всегда после обязательных
+say_hello("Bob")    #будет использован параметр возраста по умолчанию
 say_hello("Tom", 19)
+
+#   ИМЕНОВАННЫЕ ПАРАМЕТРЫ (передача значений параметрам по имени)
+def print_person(name, age):
+    print(f"Name: {name}  Age: {age}")
+print_person(age = 22, name = "Tom") #польза -- можно менять порядок
+                          #параметров и читателю становится понятнее
+
+def print_person(name, *,  age, company):   # '*,' относится к age и company -
+                                            # - обязательное именование
+    print(f"Name: {name}  Age: {age}  Company: {company}")
+print_person("Bob", age = 41, company ="Microsoft")    # Name: Bob  Age: 41  company: Microsoft
+
