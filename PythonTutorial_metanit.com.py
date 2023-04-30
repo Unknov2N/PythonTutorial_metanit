@@ -6,6 +6,8 @@ print ("Привет, ", name)'''
 #   Print != print
 #   () is not necessary everywhere, same as ';' 
 from asyncio import selector_events
+from logging import exception
+from operator import index
 from telnetlib import X3PAD
 from xml.sax.handler import property_declaration_handler
 
@@ -27,9 +29,9 @@ your advertising could be here'''
 null=0.0100
 first =1
 second= "second"
-_sum = null + first # + second -- EXCEPTION float vs str
+sum = null + first # + second -- EXCEPTION float vs str
 
-print ("null is", null, ", first =", first,", second)", second,"\nsum — ", _sum)
+print ("null is", null, ", first =", first,", second)", second,"\nsum — ", sum)
 # spaces between "print" parameters spelled automatically,no need to add it manually
 
 #4  variables
@@ -52,7 +54,7 @@ underscore_notation = "underscore_notation"
 Name = "Tom"
 name = "tom"
 
-#5 types, basic are bool, int, float, complex (?), str
+#5 types, basic are bool, int, float, complex, str
 #   int
 a = 0b1001      # binary
 b = 0o12        # octal
@@ -79,8 +81,8 @@ print ("\nTypeCastIng to float, int, bool, str:", float(d), int(d), bool(d), str
 #КОНСОЛЬНЫЙ ВВОД И ВЫВОД
 
 name = 'tom'
-_name = "TOM"
-print ("\n\' or \" in str initialization — doesn`t matter: ", name, _name)
+NAME = "TOM"
+print ("\n\' or \" in str initialization — doesn`t matter: ", name, NAME)
 
 #   different spelling of a text in PRINT
 a_letter = ("Lorem ipsum dolor sit amet, "            "consectetur adipiscing elit, "
@@ -238,10 +240,10 @@ def sum(*numbers):  #с помощью '*' создаётся итерируем
 sum(1, 2, 3, 4, 5)      # sum = 15
 sum(3, 4, 5, 6)         # sum = 18
 
-sum_fourty_one = sum(40, 1)
+sum41 = sum(40, 1)
 def double(number):
     return number * 2
-print("sum 40, 1 = ",double(sum_fourty_one))
+print("sum 40, 1 = ",double(sum41))
 
 def print_person(*,age=13, name):
     if(age>120) or (age<0):             #красивая обработка исключений
@@ -305,6 +307,7 @@ ssum = lambda a,b,c: a+b*c
 
 #Лямбда-функцию можно сразу впихивать параметром
 do_operation(2.1,33,lambda b,a:round (a**b ,2))
+
 
 
 #   ОБЛАСТЬ ВИДИМОСТИ ПЕРЕМЕНЫХ
@@ -416,6 +419,7 @@ def sum_of_two(a,b): return a+b
 print(sum_of_two(2,3)) # 25
 
 
+
 # КЛАССЫ, ОБЪЕКТЫ
 class NullClass:
     pass    # значение по умолчанию, если ничего не придумано
@@ -477,7 +481,7 @@ item.display_info()
 # Аннотации свойств (ещё один сахар) 
 # через @property созадётся свойство-геттер
 # через имя_свойства_геттера.setter создаётся сеттер
-class RightClass(): # а что может быть в скобках помимо void?
+class RightClass():
     def __init__(self,_name, _age):
         self.__age=_age
         self.__name=_name
@@ -507,6 +511,10 @@ class RightClass(): # а что может быть в скобках помим
     
     def display_info(self):
         print(f"Имя: {self.__name}, возраст: {self.__age}")
+    
+    def do_nothing(self):
+        print (f"{self.name} do nothing")
+        
 
 print("\nВключаем @property и @[setter_name].setter у правильного класса")
 item = RightClass("Victor", 34)
@@ -514,5 +522,398 @@ item.display_info()
 item.age = 36
 print(item.age)
 item.display_info()
+print()
 print("Теперь мы умеем обращаться и к геттеру, и к сеттеру возраста "
       "через item.age")
+
+
+# НАСЛЕДОВАНИЕ 
+# суперкласс называется базовым классом (base class, parent class), 
+# подкласс -- производный или дочерний (derived or child class)
+class UltraRightClass(RightClass):
+    pass
+    def work(self):
+        print(f"{self.name} works")
+      #  print(f"{self.__name} works") # будет ошибка, методы дочернего 
+      # элемента не могут обращаться к атрибутам родительского
+
+person = UltraRightClass("Tom", 33)
+person.display_info()
+person.work()
+print()
+
+class UltraLeftClass (RightClass):
+    def study(self): print (f"{self.name} studies")
+    # множественное наследование
+class UltraCenterClass(UltraRightClass, UltraLeftClass):
+    pass
+
+person = UltraCenterClass("Viktor", 78)
+person.display_info()
+person.work()
+person.study()
+print()
+
+
+# Переопределение функционала базового класса
+class UltraRightClass(RightClass):
+    def __init__(self,_name, _age, _company): # взяли конструктор базового класса, 
+        super().__init__(_name, _age)         # де-факто вытянули аттрибуты из него
+        self.company = _company               # и дополнили их
+
+    def display_info(self):
+        super().display_info()  # аналогично поступили тут с методом
+        print(f"company: {self.company}")
+
+    def work(self):
+        print(f"{self.name} works")
+    
+person = UltraRightClass("Tom", 35.5, "necroSoft")
+person.display_info()
+print()
+
+
+# Проверка типа объекта
+a: bool
+b: bool
+a= type(person) == UltraRightClass
+b= isinstance(person, UltraRightClass)
+print(a,'\t',b)
+
+def action_alt(_person):
+    if type(_person) == UltraRightClass:
+        _person.work()
+    elif type(_person) == UltraLeftClass:
+        _person.study()
+    elif type(_person) == RightClass:
+        _person.do_nothing()
+    print()
+
+def action_right(_person):
+    if isinstance(_person, UltraRightClass): # зачем нам insistance, если есть type?
+        _person.work()
+    elif isinstance(_person, UltraLeftClass):
+        _person.study()
+    elif isinstance(_person, RightClass):
+        _person.do_nothing()
+    print()
+
+action_alt(person)
+action_right(person)
+
+person1 = RightClass("RC", 30)
+person2 = UltraRightClass("URC", 31, "MMA")
+person3 = UltraLeftClass("ULC", 32)
+
+action_right(person1)
+action_right(person2)
+action_right(person3)
+
+
+
+# АТРИБУТЫ КЛАССА (не путаем с атрибутами объекта)
+class Person:
+                        # атрибуты класса определяются непосредственно в нём,
+                        # а не в конструкторе, как это было с атрибутами объекта
+    type = "Person"     #*type, sum -- имеют свои значения, поэтому светят синим
+    description = "Describes a person"
+    third_attrib = 3    # нельзя не определять
+
+#   видимость работает так же, как и с атрибутами объекта, через "__"
+print(Person.type)
+print(Person.description)
+Person.type = "Class Person"
+print(Person.type)
+print()
+
+# пример полезности
+class DefaultClass:
+    defaultName = "here is no name"
+    def __init__(self, _name):
+        if _name:           # делаем проверку, не пусто ли имя
+            self.name = _name
+        else: self.name = DefaultClass.defaultName
+
+class SecondDefaultClass:
+    name = "Undefined"
+    __type = "SecondDefaultClass"
+
+    @staticmethod       # метод, независимый от объекта; зачем здесь аннотация вообще?
+    def print_type():
+        print(SecondDefaultClass.__type)
+
+    def print_type_alt(self): # ведь можно написать так и проблем не будет, см ↑↑
+        print(SecondDefaultClass.__type) # разве что его нельзя использовать без инициализации объекта
+
+
+    def print_name(self):
+        print(self.name)
+
+person4 = SecondDefaultClass()
+person5 = SecondDefaultClass()
+person4.print_name()
+person5.print_name()
+person4.name = "Bob"
+person4.print_name()
+person5.print_name()
+print()
+
+person4.print_type()
+person4.print_type_alt() # это вопрос архитектуры и видимости, не более
+print()
+
+# Класс object. Строковое представление объекта
+# начиная с 3 версии python все классы являются наследниками object
+class Person:
+    def __str__(self):      # наиболее используемый метод класса object,
+        str_:str
+        str_ = str(super.__str__(self)) # выводи строковое представление объекта;
+        return f"name: {self.name}, age:{self.age}" # надо переопределить
+
+    def __init__(self, _name, _age):
+        self.name = _name
+        self.age = _age
+        pass
+
+    def display_info(self):
+        print(f"name: {self.name}, age: {self.age}")
+        pass
+    pass
+
+tom = Person("tom", 23)
+print (tom)
+tom.display_info()
+
+print (print(tom) == tom.display_info()) # True
+print()
+
+
+
+# ОШИБКИ ВЫПОЛНЕНИЯ -- ИСКЛЮЧЕНИЯ
+'''
+try:
+    numeric = int(input ("Введите целое число: "))
+    print (f"Введённое число: {numeric}")
+except:     #ValueError:      #аналог catch
+    print ("Ошибка: введено не число")
+finally: # выполняется в любом случае, как правило тут высвобождаются ресурсы
+    print("Блок try завершил выполнение")
+print ("Завершение работы программы")
+
+def func():
+    try:
+        print ("hello")
+        return      # блок finally выполняется в любом случае
+    except:
+        print("ошибка ввода hello")
+    finally:
+        print ("world")
+        pass
+    pass
+func()
+print()
+
+# Встроенные типы исключений
+try:
+    numeric = int(input ("Введите целое число: "))
+    print (f"Введённое число: {numeric}")
+except ValueError:
+    print ("Ошибка: введено не число")
+finally:
+    print("Блок try завершил выполнение")
+print ("Завершение работы программы\n")
+'''
+
+
+# базовые типы исключений Python 
+'''
+ • BaseException: базовый тип для всех встроенных исключений
+ • Exception: базовый тип, который обычно применяется для создания 
+       своих типов исключений
+ • ArithmeticError: базовый тип для исключений, связанных с 
+       арифметическими операциями (OverflowError, ZeroDivisionError, 
+       FloatingPointError).
+ • BufferError: тип исключения, которое возникает при невозможности 
+       выполнить операцию с буффером
+ • LookupError: базовый тип для исключений, которое возникают при 
+       обращении в коллекциях по некорректному ключу или индексу 
+       (например, IndexError, KeyError)
+
+Перечислю только некоторые наиболее часто встречающиеся:
+    IndexError: исключение возникает, если индекс при обращении к элементу 
+коллекции находится вне допустимого диапазона
+    KeyError: возникает, если в словаре отсутствует ключ, по которому 
+происходит обращение к элементу словаря.
+    OverflowError: возникает, если результат арифметической операции 
+не может быть представлен текущим числовым типом (обычно типом float).
+    RecursionError: возникает, если превышена допустимая глубина рекурсии.
+    TypeError: возникает, если операция или функция применяется к значению 
+недопустимого типа.
+    ValueError: возникает, если операция или функция получают объект 
+корректного типа с некорректным значением.
+    ZeroDivisionError: возникает при делении на ноль.
+    NotImplementedError: тип исключения для указания, что какие-то 
+методы класса не реализованы
+    ModuleNotFoundError: возникает при при невозможности найти модуль 
+при его импорте директивой import
+    OSError: тип исключений, которые генерируются при возникновении 
+ошибок системы (например, невозможно найти файл, память диска заполнена 
+                и т.д.)
+'''
+
+# пример с разными исключениями
+'''
+try:
+    number1 = int(input("Введите первое Целое число: "))
+    number2 = int(input("Введите второе Целое число: "))
+    print ("результат деления первого числа на второе \n", number1/number2)
+
+except (ValueError,ZeroDivisionError): # а можно и так
+    print ("попытка делить на ноль или некорректный ввод")
+
+except ValueError:
+    print("ошибка ввода; введено не целое или не число")
+except ZeroDivisionError:
+    print("нельзя делить на ноль")
+
+except BaseException as e:      # всегда (ли?) нужен, чтобы прога не вылетала
+    print("неизвестная ошибка: ", e)
+
+finally: print ("Завершение работы программы\n")
+'''
+
+# ГЕНЕРАЦИЯ ИСКЛЮЧЕНИЙ И СОЗДАНИЕ СВОИХ ТИПОВ ИСКЛЮЧЕНИЙ
+'''
+try:
+    number1 = int(input("Введите первое Целое число: "))
+    number2 = int(input("Введите второе Целое число: "))
+    if number2 == 0:
+        raise Exception("Второе число не должно быть равно 0") 
+        # выдача внеочередного исключения Exception (BaseException)
+
+    print ("результат деления первого числа на второе \n", number1/number2)
+
+except ValueError:
+    print("ошибка ввода; введено не целое или не число")
+
+except BaseException as e:
+    print("неизвестная ошибка:\n", e)
+
+finally: print ("Завершение работы программы\n")
+'''
+
+class Person:
+    def __init__(self, _name, _age):
+        self.__name = _name
+        minAge_, maxAge_ = 0, 150
+        if minAge_ <= _age<= maxAge_:
+            self.__age = _age
+        else: raise PersonAgeException(_age, minAge_, maxAge_)
+
+    def __str__(self):
+        return f"name: {self.__name}, age: {self.__age}"
+
+class PersonAgeException(BaseException): # создаём своё исключение
+    def __init__(self, _age, _minAge, _maxAge):
+        self.age = _age
+        self.minAge = _minAge
+        self.maxAge = _maxAge
+
+    def __str__(self):
+        return f"Ошибка: введено неккоректное значение возраста: {self.age}\n" \
+        f"значение должно быть в диапазоне от {self.minAge} до {self.maxAge}"
+
+try: # если try/except не будет, то python всё равно напишет исключение
+     # с traceback-ом (ибо мы вписали наше исключение в __init__),
+     # но при этом выкинет из программы
+    person1 = Person("Jesus", 33)
+    person1 = Person("Judas", -1) # Exc!
+except PersonAgeException as e: print (e) # используем своё исключение
+print (person1)
+print ()
+
+
+
+# СПИСКИ, КОРТЕЖИ, СЛОВАРИ
+numbers = [1,2,3,4,5,6]
+people = ["Tom", "Ford", "Daimler", '', '\t']
+
+numbers1 =  list([1,2,3,4,5,6])
+numbers2 = []
+people1 = list("Список")
+peopleAndNumbers = list(["list", 1, 'f', 554.332])
+print(numbers, '\t',numbers1, '\t', numbers2, '\t', \
+ people, '\t', people1, '\t', peopleAndNumbers)
+
+#ввод одинаковых значений
+numbers2 = [5] *6
+people = ["Tom", "Ford", 5.3] *3
+
+# обращение к элементам списка
+print(people[4])
+print(people[-1]) # получение элемента с конца списка
+                  # (у последнего элемента индекс = -1)
+people[-3] = "not Tom"
+print (people)
+
+try:
+    print(people[-0])
+    print(people[-9])
+  # print(people[9]) -- вылет только тут, ибо -0 = -9 = 0
+    print(people[-(-1)]) # ошибок нет, ибо 
+                         # сначала происходит вычисление индекса
+except:
+    print("выход за границы списка")
+
+# Разложение списка
+list_, int_, char_, float_ = peopleAndNumbers
+print (list_, int_, char_, float_, sep = ', ')
+print()
+
+# перечисление списка (перебор элементов)
+for person in people:
+    print(person)
+iter_ = 0
+while iter_< len(people):
+    print(people[iter_])
+    iter_+=1
+
+print (numbers==numbers1) # True, если внутренности совпадают
+print()
+
+# Получение части списка
+lists = list()
+lists.append(people[:3])    # с 0 по 3 элемент
+lists.append(people[4:len(people)]) # с 4 по последний элемент
+lists.append(people[0:7:3]) # c 0 по 6(!) элемент с шагом 3 (0,3,6 элементы)
+
+print(people)
+print()
+for item in lists:
+    print(item, end='\n')
+print()
+
+# обратный порядок заполнения
+numbers1 = numbers[-1:-3] # элементов 6: значит будет идти с 5го по 3й; не работает (?)
+print(numbers,'\n',numbers1) # ↑ пишет " []"; и почему при использовании '\n'
+print()                      # нижняя строка смещается на пробел?
+
+# Методы и функции по работе со списками (читаем на сайте)
+# https://metanit.com/python/tutorial/3.1.php
+
+# Проверка наличия элемента
+print(people)
+while "Ford" in people:
+        index_ = people.index("Ford")
+        print (f"Ford есть в списке людей под индексом "
+       f"{index_}, удаляем")
+        people.remove("Ford")
+print(people)
+
+del people[2:7:2]
+print(people)
+print("число вхождений слова \"Tom\": ", people.count("Tom"))
+print("число вхождений числа 5.3: ", people.count(5.3))
+print()
+
+# остановились на сортировке
