@@ -5,6 +5,7 @@ print ("Привет, ", name)'''
 #2  TAB or 4 SPACEs
 #   Print != print
 #   () is not necessary everywhere, same as ';' 
+from asyncio import selector_events
 from telnetlib import X3PAD
 
 
@@ -104,11 +105,12 @@ user = f'name {userName}, age: {userAge}'
 
 print     (path, "\t", user, end = '\tqwerty')
 
+'''
 userName = input("\nВведите ваше имя:_")
 userAge = input("Введите ваш возраст:_")
 print(f"Ваше имя {userName}, тип значения {type(userName)},"
       f" а возраст -- {userAge}, тип значения {type(userAge)}")
-
+'''
 
 #АРИФМЕТИЧЕСКИЕ ОПЕРАЦИИ С ЧИСЛАМИ
 
@@ -209,8 +211,151 @@ def print_person(name, age):
 print_person(age = 22, name = "Tom") #польза -- можно менять порядок
                           #параметров и читателю становится понятнее
 
-def print_person(name, *,  age, company):   # '*,' относится к age и company -
+def print_person(name, *,  age, company):   # '*' относится к age и company -
                                             # - обязательное именование
     print(f"Name: {name}  Age: {age}  Company: {company}")
-print_person("Bob", age = 41, company ="Microsoft")    # Name: Bob  Age: 41  company: Microsoft
 
+print_person("Bob", age = 41, company ="Microsoft")
+
+# ПОЗИЦИОННЫЕ ПАРАМЕТРЫ (параметры, которые привязаны не к имени, а к позиции)
+def print_person(name, /, age, company="Microsoft"):# '/' относится к name
+    print(f"Name: {name}  Age: {age}  Company: {company}")# удобно ориентироваться по положению
+print_person("Tom", company="JetBrains", age = 24)
+print_person("Bob", 41)
+
+# Неопределенное количество параметров
+def sum(*numbers):  #с помощью '*' создаётся итерируемый список
+    result = 0
+    for n in numbers:   # я же сказал, итерируемый
+        result += n
+    print(f"sum = {result}")
+    
+    return result    # тип функции определяется автоматически, как и с переменной, ох уж этот питон
+    qwerty=3         # повторение -- мать учения
+    йцукен:int =4    # ух ты, можно кириллицей!
+
+sum(1, 2, 3, 4, 5)      # sum = 15
+sum(3, 4, 5, 6)         # sum = 18
+
+sum_fourty_one = sum(40, 1)
+def double(number):
+    return number * 2
+print("sum 40, 1 = ",double(sum_fourty_one))
+
+def print_person(*,age=13, name):
+    if(age>120) or (age<0):             #красивая обработка исключений
+        print(f"{age} ← invalid age")
+        return 1                        #по-хорошему потом по коду ошибки надо выводить описание
+    print(f"Name:{name}, age:{age}")
+
+print_person(name="Федор", age=24)      #normal
+print_person(name="Feudor", age=243)    #   exception
+
+#   ФУНКЦИЯ КАК ПЕРЕМЕННАЯ
+def func1(): print("первая функция-переменная")
+def func2(): print("вторая функция-переменная")
+
+undefinited_func = func1
+undefinited_func();
+undefinited_func = func2
+undefinited_func();
+
+def func3(function, str):
+    print(f'''результат работы функции{undefinited_func()}
+          "Введённая строка: {str}''')
+
+
+def do_operation(a,b,operation):
+    print(f"результат операции с функцией в качестве параметра: {operation(a,b)}")
+    return operation(a,b)
+def exponentiation(a,b):        return a**b
+
+def multiply(a,b):    return a*b
+def sum(a,b): return a+b
+
+print(do_operation  (  2,3,exponentiation))
+print(do_operation(2,3,multiply))
+
+# возврат функции в качестве результата
+def select_operation (choice):
+    if   choice == "sum":           return sum
+    elif choice == "exponentiation":return exponentiation
+    elif choice == "multiply":      return multiply
+    else: return 1
+
+print(do_operation(2,3, select_operation("sum"))) # 5
+
+
+# ЛЯМБДА-мать их-ВЫРАЖЕНИЯ -- анонимные функции, т.е. без def и соотв конструкции
+# иными словами, лямбда-выражение, это функция, мимикрирующая под переменную
+# де-факто это синтаксический сахар, упрощённая запись функции в-одну-строку как переменной
+message1 = lambda: print("hello")
+def message2(): print("hello")
+#message1 и message2 равнозначны, но при этом
+message1()
+message2()
+print(message1==message2)     # False
+print(message1()==message2()) # True
+
+sum = lambda a, b: a + b
+print(sum(4,5))
+
+ssum = lambda a,b,c: a+b*c
+
+#Лямбда-функцию можно сразу впихивать параметром
+do_operation(2.1,33,lambda b,a:round (a**b ,2))
+
+
+#   ОБЛАСТЬ ВИДИМОСТИ ПЕРЕМЕНЫХ
+# global
+age = 0
+def some_function_global():
+    global age          # используем глобальную переменную
+    age = 1
+    print(age, end='\t')
+
+
+def some_function():
+    age = -1            # скрываем значение глобальной переменной
+    print(age, end='\t')
+
+print(age)
+some_function()
+print(age)
+some_function_global()
+print(age)
+
+# local
+a = 2
+b = 0
+def some_function_():
+    global a
+    if a > 0:
+        a = 0       # в IF используется та же переменная
+    print(a)
+
+some_function_()
+print (a)
+print("------------------------")
+
+def some_function__():
+    global a
+    a=3
+    def inner_function():
+        message1        # нельзя использовать nonlocal для global ранее
+    inner_function()
+    print(a)
+
+some_function__() # 3
+print (a) # 3
+
+def some_function_local():
+    a=2
+    def inner_function():
+        nonlocal a
+        a=-2
+    inner_function()
+    print (a)
+
+some_function_local()
+print (a)
