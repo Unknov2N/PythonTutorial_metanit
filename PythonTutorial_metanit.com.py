@@ -7,6 +7,7 @@ print ("Привет, ", name)'''
 #   () is not necessary everywhere, same as ';' 
 from asyncio import selector_events
 from telnetlib import X3PAD
+from xml.sax.handler import property_declaration_handler
 
 
 if (1 > 2):
@@ -342,7 +343,8 @@ def some_function__():
     global a
     a=3
     def inner_function():
-        message1        # нельзя использовать nonlocal для global ранее
+      # nonlocal a    # нельзя использовать nonlocal для global ранее
+        a=-1
     inner_function()
     print(a)
 
@@ -359,3 +361,158 @@ def some_function_local():
 
 some_function_local()
 print (a)
+# разобрались с global и nonlocal
+
+
+# ЗАМЫКАНИЯ (closure) -- функция, всегда запоминающая своё окружение. 
+#   Состав:
+    # внешняя функция с областью видимости
+    # переменные и параметры внешней функции
+    # вложенная функция, котрая использует окружение внешней
+        # окружение -- это внешние для функции переменные и параметры
+def outer():
+    n=5
+    def inner():
+        nonlocal n
+        n+=1
+        print(n)
+    return inner
+
+fn = outer()   # здесь - следите за руками - мы присвоили Результат работы
+fn() # 6       # outer, т.е. inner с nonlocal n (не определённым заранее),
+fn() # 7       # т.е. fn сохраняет изменённое n.
+fn() # 8       # В итоге fn является Замыканием, т.е. объединяет функцию
+               # и окружение, в котором функция была создана
+
+# применение параметров окружающей фукнции ко внутренней
+def outer(a):
+    def inner(b): return a * b
+    return inner        # двойной ретурн даёт право и обязанность
+                        # использования двойных скобок (см. снизу)
+
+# или при помощи лямбда-выражений, но надо быть аккуратным с параметрами
+def outer_alt(a):return lambda a: a*b
+                       
+par_a=45
+par_b=3
+fn = outer(par_a)
+print(fn(par_b)) # 135
+#   или так:
+c = outer(par_a-30)(par_b+1)
+print(c)         # 15 * 4 = 60
+
+
+# ДЕКОРАТОРЫ
+def decor_square(some_func):
+    def lzhedmitry(*params):
+        print("-------------")
+        print( some_func(*params)**2 )  # круто!
+        print("-------------")  # И беды не будет, ибо количество 
+    return lzhedmitry           # параметров дублируется в зависимости от функции
+
+@decor_square
+def sum_of_two(a,b): return a+b
+
+print(sum_of_two(2,3)) # 25
+
+
+# КЛАССЫ, ОБЪЕКТЫ
+class NullClass:
+    pass    # значение по умолчанию, если ничего не придумано
+nullObject = NullClass()   # определение объекта класса через конструктор
+
+class MyClass():
+    def __init__(self, name): # конструктор определяется через __init__; может быть только один
+        self.name = name    #аттрибуты определяются через конструктор автоматически
+        self.age = 68       # все аттрибуты должны быть явно определены в нём
+
+    def print_yourself(self):   # функция определяется как метод через def и
+        print (f"my name is {self.name}, {self.age} years old") # передачу self (аналог this)
+
+myself = MyClass("Warren")
+myself.print_yourself()
+
+myself.dynamicAttr = "bastard"  # динамическое создание аттрибута вне класса
+print(myself.dynamicAttr)   # инкапсуляция OFF, читай далее
+
+
+# ИНКАПСУЛЯЦИЯ, АТРИБУТЫ, СВОЙСТВА. 
+# раскидаем понятия:
+    # инкапсуляция -- способ работы с атрибутами только через методы
+    # атрибут = поле; сделать аттрибут приватным -- добавить ему в начале "__" 
+    # методы, вытаскивающие приватные атрибуты из класса -- акцессоры/геттеры
+
+class RightClass(): # а что может быть в скобках помимо void?
+    def __init__(self,_name, _age):
+        self.__age=_age
+        self.__name=_name
+        pass
+    
+    def get_age(self):
+        return self.__age   # это называется геттер или аксессор
+    # отличие свойства от метода?
+    def set_age(self, _age): # метод называется сеттер или mutator
+        if 0 < age < 150:
+            self.__age = _age
+        else:
+            print("Недопустимый возраст")
+
+    def set_name(self, _name):
+        if _name != '':
+            self.__name = _name
+        else:
+            print("Имя не должно быть пусто")
+    def get_name(self):
+        return self.__name
+
+    def display_info(self):
+        print(f"Имя: {self.__name}, возраст: {self.__age}")
+
+print("\nВключаем инкапсуляцию, пишем правильный класс")
+item = RightClass("Victor", 34)
+item.display_info()
+item.set_age(36)
+item.display_info()
+
+# Аннотации свойств (ещё один сахар) 
+# через @property созадётся свойство-геттер
+# через имя_свойства_геттера.setter создаётся сеттер
+class RightClass(): # а что может быть в скобках помимо void?
+    def __init__(self,_name, _age):
+        self.__age=_age
+        self.__name=_name
+        pass
+    
+    @property   #геттер
+    def age(self):
+        return self.__age
+    
+    @age.setter #сеттер
+    def age(self, _age):
+        if 0 < age < 150:
+            self.__age = _age
+        else:
+            print("Недопустимый возраст")
+
+    @property
+    def name(self):
+        return self.__name
+    
+    @name.setter    #сеттер не может быть написан раньше геттера
+    def name(self, _name):
+        if _name != '':
+            self.__name = _name
+        else:
+            print("Имя не должно быть пусто")
+    
+    def display_info(self):
+        print(f"Имя: {self.__name}, возраст: {self.__age}")
+
+print("\nВключаем @property и @[setter_name].setter у правильного класса")
+item = RightClass("Victor", 34)
+item.display_info()
+item.age = 36
+print(item.age)
+item.display_info()
+print("Теперь мы умеем обращаться и к геттеру, и к сеттеру возраста "
+      "через item.age")
