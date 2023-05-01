@@ -9,7 +9,11 @@ from asyncio import selector_events
 from logging import exception
 from operator import index
 from telnetlib import X3PAD
+<<<<<<< HEAD
+from tkinter import TRUE
 from xml.sax.handler import property_declaration_handler
+=======
+>>>>>>> parent of 480b260 (пройдено:)
 
 
 if (1 > 2):
@@ -346,8 +350,7 @@ def some_function__():
     global a
     a=3
     def inner_function():
-      # nonlocal a    # нельзя использовать nonlocal для global ранее
-        a=-1
+        message1        # нельзя использовать nonlocal для global ранее
     inner_function()
     print(a)
 
@@ -364,6 +367,7 @@ def some_function_local():
 
 some_function_local()
 print (a)
+<<<<<<< HEAD
 # разобрались с global и nonlocal
 
 
@@ -917,3 +921,5 @@ print("число вхождений числа 5.3: ", people.count(5.3))
 print()
 
 # остановились на сортировке
+=======
+>>>>>>> parent of 480b260 (пройдено:)
