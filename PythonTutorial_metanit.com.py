@@ -364,7 +364,7 @@ def some_function_local():
 
 some_function_local()
 print (a)
-<<<<<<< HEAD
+
 # разобрались с global и nonlocal
 
 
@@ -918,5 +918,3 @@ print("число вхождений числа 5.3: ", people.count(5.3))
 print()
 
 # остановились на сортировке
-=======
->>>>>>> parent of 480b260 (пройдено:)
