@@ -9,11 +9,8 @@ from asyncio import selector_events
 from logging import exception
 from operator import index
 from telnetlib import X3PAD
-<<<<<<< HEAD
 from tkinter import TRUE
 from xml.sax.handler import property_declaration_handler
-=======
->>>>>>> parent of 480b260 (пройдено:)
 
 
 if (1 > 2):
